@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" ></script>
+  <!-- Bootstrap theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:400,700">
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Manrope:400,700">
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Fraunces:400,700">
+
+  <link rel="icon" type="image/png" href="images/small_logo.png">
+
+  <title>Login/Signup</title>
+  <style>
+    /* Custom CSS for improved UI */
+    body {
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    /* Navbar styling */
+    .navbar-default {
+      background-color: #4e70be;
+      border-color: #4e70be;
+      border-radius: 0;
+    }
+
+    .navbar-default .navbar-brand {
+      color: #fff;
+      font-size: 24px;
+      padding: 10px 20px;
+    }
+
+    .navbar-default .navbar-nav>li>a {
+      color: #fff;
+      font-size: 18px;
+      padding: 15px 20px;
+    }
+
+    .navbar-default .navbar-nav>li>a:hover,
+    .navbar-default .navbar-nav>li>a:focus {
+      color: #007bff;
+      background-color: #fff;
+    }
+
+    /* Form styling */
+    .form-group label {
+      color: #4e70be;
+      font-weight: bold;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .form-control {
+      border-color: #4e70be;
+      border-radius: 0;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    .btn-success {
+      color: #fff;
+      background-color: #4e70be;
+      border-color: #4e70be;
+      border-radius: 50px;
+      transition: background-color 0.2s ease-in-out;
+      font-family: 'Fraunces', sans-serif;
+    }
+
+    .btn-success:hover {
+      background-color: #0056b3;
+    }
+
+    /* Note container styling */
+    .note-container {
+      margin-top: 30px;
+    }
+
+    .note {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      font-family: 'Manrope', sans-serif;
+    }
+
+    /* Additional animations */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .slide-in-right {
+      animation: slideInRight 0.5s ease-in;
+    }
+
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    /* Custom styles for the Register and Login sections */
+    .auth-section {
+      border: 1px solid #ccc;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+
+    .auth-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4e70be;
+      font-size: 28px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .auth-section button {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 50px;
+      font-family: 'Fraunces', sans-serif;
+    }
+
+    .auth-section img {
+      display: block;
+      margin: 0 auto;
+      margin-top: 30px;
+      max-width: 100%;
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+    }
+
+    footer p {
+      margin: 0;
+      color: #4e70be;
+    }
+  </style>
+</head>
+<body>
+  <div class="navbar navbar-default">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="index.html">Smart$uccess</a>
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" id="logout" style="display: none;">Log Out</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="auth-section fade-in">
+          <h2>Register</h2>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="text" name="email" id="email" class="form-control" placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" class="form-control"  placeholder="Enter your password">
+          </div>
+          <button type="button" id="register" name="register" class="btn btn-success btn-round">Register Now</button>
+        </div>
+      </div><!-- end col -->
+      <div class="col-sm-4 slide-in-right">
+        <img src="firebase_auth.png">
+      </div>
+      <div class="col-sm-4">
+        <div class="auth-section fade-in">
+          <h2>Login</h2>
+          <div class="form-group">
+            <label for="login_email">Email</label>
+            <input type="text" name="login_email" id="login_email" class="form-control" placeholder="Enter your email">
+          </div>
+          <div class="form-group">
+            <label for="login_password">Password</label>
+            <input type="password" name="login_password" id="login_password" class="form-control"  placeholder="Enter your password">
+          </div>
+          <button type="button" id="login" name="login" class="btn btn-success btn-round">Login</button>
+        </div>
+      </div><!-- end col -->
+    </div><!--  end row -->
+  </div>
+  <div class="container note-container fade-in" style="display: none;" id="loggedInContainer">
+    <h2>User Credentials</h2>
+    <div id="userCredentials"></div>
+    <h2>Save Note</h2>
+    <textarea id="noteInput" class="form-control" rows="5" placeholder="Enter your note"></textarea>
+    <button type="button" id="saveNote" name="saveNote" class="btn btn-primary btn-round">Save Note</button>
+    <h2>My Notes</h2>
+    <div id="noteList"></div>
+  </div>
+  <footer class="container fade-in">
+    <hr>
+    <p>&copy; 2023 Smart$uccess. All rights reserved.</p>
+  </footer>
+</body>
+<script type="module">
+
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-database.js"; // Add 'push' import here
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  // Your existing Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDuS4983E91E57viKdfYzLWlVjz4dICnFc",
+      authDomain: "smart-success-b9a92.firebaseapp.com",
+      projectId: "smart-success-b9a92",
+      storageBucket: "smart-success-b9a92.appspot.com",
+      messagingSenderId: "651022652129",
+      appId: "1:651022652129:web:a7ee097baf3a09c85bdda0",
+      measurementId: "G-DHQ7JNGF1C"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const auth = getAuth();
+  const database = getDatabase();
+
+
+  const userCredentialsDiv = document.getElementById("userCredentials");
+  const noteInput = document.getElementById("noteInput");
+  const saveNoteButton = document.getElementById("saveNote");
+  const noteListDiv = document.getElementById("noteList");
+
+  // Register new user
+  document.getElementById("register").addEventListener("click", function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    // For new registration
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in
+      const user = userCredential.user;
+      console.log(user);
+      alert("Registration successfully!!");
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      alert(error);
+    });
+  });
+
+     // Check if the user is logged in or not
+     function checkLoginStatus() {
+    const user = auth.currentUser;
+    if (user) {
+      // User is logged in
+      document.getElementById("loggedInContainer").style.display = "block";
+    } else {
+      // User is not logged in
+      document.getElementById("loggedInContainer").style.display = "none";
+    }
+  }
+
+   // Call the function on page load
+   checkLoginStatus();
+
+
+ // Login existing user
+ document.getElementById("login").addEventListener("click", function() {
+    const email = document.getElementById("login_email").value;
+    const password = document.getElementById("login_password").value;
+
+    signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      // Signed in
+      const user = userCredential.user;
+      console.log(user);
+      alert(user.email + " Login successfully!!!");
+      document.getElementById('logout').style.display = 'block';
+      displayUserCredentials(user);
+      displayNotes(user);
+      // Show the container with user credentials, notes, and "My Notes" heading
+      document.getElementById("loggedInContainer").style.display = "block";
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      alert(errorMessage);
+    });
+  });
+
+  // Logout user
+  document.getElementById("logout").addEventListener("click", function() {
+    signOut(auth)
+    .then(() => {
+      // Sign-out successful.
+      console.log('Sign-out successful.');
+      alert('Sign-out successful.');
+      document.getElementById('logout').style.display = 'none';
+      userCredentialsDiv.innerHTML = '';
+      noteListDiv.innerHTML = '';
+      // Hide the container with user credentials, notes, and "My Notes" heading
+      document.getElementById("loggedInContainer").style.display = "none";
+    })
+    .catch((error) => {
+      // An error happened.
+      console.log('An error happened.');
+    });
+  });
+
+ 
+
+  // Save note
+  saveNoteButton.addEventListener("click", function() {
+    const user = auth.currentUser;
+    if (user) {
+      const userId = user.uid;
+      const noteText = noteInput.value.trim();
+      if (noteText !== '') {
+        const notesRef = ref(database, 'notes/' + userId);
+        const newNoteRef = push(notesRef); // Generate a unique key for the new note
+        set(newNoteRef, {
+          note: noteText
+        })
+        .then(() => {
+          alert("Note saved successfully!");
+          noteInput.value = '';
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Failed to save note!");
+        });
+      }
+    } else {
+      alert("Please login to save a note.");
+    }
+  });
+
+
+  // Display user credentials
+  function displayUserCredentials(user) {
+    if (user) {
+      userCredentialsDiv.innerHTML = `
+        <p>Email: ${user.email}</p>
+        <p>User ID: ${user.uid}</p>
+      `;
+    } else {
+      userCredentialsDiv.innerHTML = '';
+    }
+  }
+
+  // Display user's saved notes
+function displayNotes(user) {
+  if (user) {
+    const userId = user.uid;
+    const notesRef = ref(database, 'notes/' + userId);
+    onValue(notesRef, (snapshot) => {
+      const notesData = snapshot.val();
+      if (notesData) {
+        // Clear the existing notes list
+        noteListDiv.innerHTML = '';
+        // Loop through each note and display them
+        Object.values(notesData).forEach((note) => {
+          const noteText = note.note;
+          const noteDiv = document.createElement('div');
+          noteDiv.className = 'note';
+          noteDiv.textContent = noteText;
+          noteListDiv.appendChild(noteDiv);
+        });
+      } else {
+        noteListDiv.innerHTML = '';
+      }
+    });
+  } else {
+    noteListDiv.innerHTML = '';
+  }
+}
+
+</script>
+</html>

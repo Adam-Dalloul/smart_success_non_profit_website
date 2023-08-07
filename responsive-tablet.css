@@ -343,56 +343,7 @@
     .about-elem-7 {
         height: fit-content
     }
-
-    .about-elem-62 {
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: stretch;
-        row-gap: 50px
-    }
-
-    .about-elem-41 {
-        justify-content: center;
-        align-items: center;
-        max-width: none
-    }
-
-    .about-elem-36 {
-        text-align: center
-    }
-
-    .about-elem-40 {
-        justify-content: center
-    }
-
-    .about-elem-37 {
-        width: auto;
-        height: auto
-    }
-
-    .about-elem-39 {
-        width: auto;
-        height: auto
-    }
-
-    .about-elem-38 {
-        width: auto;
-        height: auto
-    }
-
-    .about-elem-47 {
-        align-items: stretch
-    }
-
-    .about-elem-61 {
-        align-items: stretch
-    }
-
-    .about-elem-56 {
-        align-items: stretch
-    }
-
-    .about-elem-52 {
-        align-items: stretch
-    }
 }
+
+
+@media (max-width:1199px) {}
