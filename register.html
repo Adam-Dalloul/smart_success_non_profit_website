@@ -10,6 +10,8 @@
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:400,700">
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Manrope:400,700">
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Fraunces:400,700">
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
 
   <link rel="icon" type="image/png" href="images/small_logo.png">
 
@@ -181,6 +183,7 @@
             <input type="password" name="password" id="password" class="form-control"  placeholder="Enter your password">
           </div>
           <button type="button" id="register" name="register" class="btn btn-success btn-round">Register Now</button>
+          <button type="button" id="google-register" name="google-register" class="btn btn-danger btn-round">Register with Google</button>
         </div>
       </div><!-- end col -->
       <div class="col-sm-4 slide-in-right">
@@ -198,10 +201,12 @@
             <input type="password" name="login_password" id="login_password" class="form-control"  placeholder="Enter your password">
           </div>
           <button type="button" id="login" name="login" class="btn btn-success btn-round">Login</button>
+          <button type="button" id="google-login" name="google-login" class="btn btn-danger btn-round">Login with Google</button>
         </div>
       </div><!-- end col -->
     </div><!--  end row -->
   </div>
+
   <div class="container note-container fade-in" style="display: none;" id="loggedInContainer">
     <h2>User Credentials</h2>
     <div id="userCredentials"></div>
@@ -210,6 +215,20 @@
     <button type="button" id="saveNote" name="saveNote" class="btn btn-primary btn-round">Save Note</button>
     <h2>My Notes</h2>
     <div id="noteList"></div>
+
+    <h2>Post Your Cause</h2>
+    <div class="form-group">
+      <label for="causeTitle">Cause Title</label>
+      <input type="text" id="causeTitle" class="form-control" placeholder="Enter cause title">
+    </div>
+    <div class="form-group">
+      <label for="targetAmount">Target Amount ($)</label>
+      <input type="number" id="targetAmount" class="form-control" placeholder="Enter target amount">
+    </div>
+    <button type="button" id="postCause" class="btn btn-primary btn-round">Post Cause</button>
+    <h2>My Causes</h2>
+    <div id="causeList"></div>
+
   </div>
   <footer class="container fade-in">
     <hr>
@@ -231,25 +250,33 @@
   // Your existing Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDuS4983E91E57viKdfYzLWlVjz4dICnFc",
-      authDomain: "smart-success-b9a92.firebaseapp.com",
-      projectId: "smart-success-b9a92",
-      storageBucket: "smart-success-b9a92.appspot.com",
-      messagingSenderId: "651022652129",
-      appId: "1:651022652129:web:a7ee097baf3a09c85bdda0",
-      measurementId: "G-DHQ7JNGF1C"
+    authDomain: "smart-success-b9a92.firebaseapp.com",
+    projectId: "smart-success-b9a92",
+    storageBucket: "smart-success-b9a92.appspot.com",
+    messagingSenderId: "651022652129",
+    appId: "1:651022652129:web:a7ee097baf3a09c85bdda0",
+    measurementId: "G-DHQ7JNGF1C"
   };
+
+  // Add Google Web Client ID
+  const googleClientId = "651022652129-q3qeebt3ffonood4336fua5pu0vphvfb.apps.googleusercontent.com"; 
+  firebaseConfig.googleClientId = googleClientId;
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const analytics = getAnalytics(app);
   const auth = getAuth();
   const database = getDatabase();
-
+  let user; // Declare the user variable globally
 
   const userCredentialsDiv = document.getElementById("userCredentials");
   const noteInput = document.getElementById("noteInput");
   const saveNoteButton = document.getElementById("saveNote");
   const noteListDiv = document.getElementById("noteList");
+  const causeTitleInput = document.getElementById("causeTitle");
+  const targetAmountInput = document.getElementById("targetAmount");
+  const postCauseButton = document.getElementById("postCause");
+  const causeListDiv = document.getElementById("causeList"); // Define the causeListDiv globally
 
   // Register new user
   document.getElementById("register").addEventListener("click", function() {
@@ -288,30 +315,127 @@
    checkLoginStatus();
 
 
- // Login existing user
- document.getElementById("login").addEventListener("click", function() {
-    const email = document.getElementById("login_email").value;
-    const password = document.getElementById("login_password").value;
+// Google Register button
+const googleRegisterButton = document.getElementById("google-register");
 
-    signInWithEmailAndPassword(auth, email, password)
+// Google Register setup
+gapi.load('auth2', function() {
+  gapi.auth2.init({
+    client_id: googleClientId
+  });
+  
+  googleRegisterButton.addEventListener("click", function() {
+    const auth2 = gapi.auth2.getAuthInstance();
+    auth2.signIn().then(function(googleUser) {
+      const id_token = googleUser.getAuthResponse().id_token;
+      const credential = GoogleAuthProvider.credential(id_token);
+      return createUserWithCredential(credential);
+    }).catch(function(error) {
+      console.log(error);
+      alert("Failed to register with Google.");
+    });
+  });
+});
+
+// Register new user with Google credential
+function createUserWithCredential(credential) {
+  return createUserWithEmailAndPassword(auth, "dummy@example.com", "password") // Email and password are required, but you can change them
     .then((userCredential) => {
-      // Signed in
+      // Link Google credential
       const user = userCredential.user;
-      console.log(user);
-      alert(user.email + " Login successfully!!!");
-      document.getElementById('logout').style.display = 'block';
-      displayUserCredentials(user);
-      displayNotes(user);
-      // Show the container with user credentials, notes, and "My Notes" heading
-      document.getElementById("loggedInContainer").style.display = "block";
+      return linkWithCredential(user, credential);
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorMessage);
-      alert(errorMessage);
+      alert("Failed to register with Google.");
+    });
+}
+
+// Link Google credential with existing user
+function linkWithCredential(user, credential) {
+  return linkWithPopup(user, credential)
+    .then(() => {
+      // Linked with Google
+      console.log("Linked with Google");
+      alert("Successfully registered with Google!");
+    })
+    .catch((error) => {
+      // An error happened.
+      console.log('An error happened.', error);
+      alert("Failed to register with Google.");
+    });
+}
+
+// Google Login button
+const googleLoginButton = document.getElementById("google-login");
+
+// Google Login setup
+gapi.load('auth2', function() {
+  gapi.auth2.init({
+    client_id: googleClientId
+  });
+
+  googleLoginButton.addEventListener("click", function() {
+    const auth2 = gapi.auth2.getAuthInstance();
+    auth2.signIn().then(function(googleUser) {
+      const id_token = googleUser.getAuthResponse().id_token;
+      const credential = GoogleAuthProvider.credential(id_token);
+      signInWithCredential(auth, credential).then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        alert(user.email + " Logged in successfully!");
+        document.getElementById('logout').style.display = 'block';
+        displayUserCredentials(user);
+        displayNotes(user);
+        displayCauses(user); // Call the displayCauses function here
+        // Show the container with user credentials, notes, and "My Notes" heading
+        document.getElementById("loggedInContainer").style.display = "block";
+        // Attach event listeners for delete buttons after successful login
+        attachDeleteEventListeners(user);
+      }).catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage);
+        alert(errorMessage);
+      });
+    }).catch(function(error) {
+      console.log(error);
+      alert("Failed to log in with Google.");
     });
   });
+});
+
+
+// Login existing user
+document.getElementById("login").addEventListener("click", function() {
+  const email = document.getElementById("login_email").value;
+  const password = document.getElementById("login_password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in
+    const user = userCredential.user;
+    console.log(user);
+    alert(user.email + " Login successfully!!!");
+    document.getElementById('logout').style.display = 'block';
+    displayUserCredentials(user);
+    displayNotes(user);
+    displayCauses(user); // Call the displayCauses function here
+    // Show the container with user credentials, notes, and "My Notes" heading
+    document.getElementById("loggedInContainer").style.display = "block";
+    // Attach event listeners for delete buttons after successful login
+    attachDeleteEventListeners(user);
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage);
+    alert(errorMessage);
+  });
+});
 
   // Logout user
   document.getElementById("logout").addEventListener("click", function() {
@@ -361,43 +485,162 @@
   });
 
 
-  // Display user credentials
-  function displayUserCredentials(user) {
+// Display user credentials
+function displayUserCredentials(user) {
+  if (user) {
+    userCredentialsDiv.innerHTML = `
+      <p>Email: ${user.email}</p>
+      <p>User ID: ${user.uid}</p>
+      <p>Logged in with: ${user.providerData[0].providerId}</p>
+    `;
+  } else {
+    userCredentialsDiv.innerHTML = '';
+  }
+}
+
+
+  // Display user's saved notes
+  function displayNotes(user) {
     if (user) {
-      userCredentialsDiv.innerHTML = `
-        <p>Email: ${user.email}</p>
-        <p>User ID: ${user.uid}</p>
-      `;
+      const userId = user.uid;
+      const notesRef = ref(database, 'notes/' + userId);
+      onValue(notesRef, (snapshot) => {
+        const notesData = snapshot.val();
+        if (notesData) {
+          noteListDiv.innerHTML = '';
+          Object.entries(notesData).forEach(([noteId, note]) => {
+            const noteText = note.note;
+            const noteDiv = document.createElement('div');
+            noteDiv.className = 'note';
+            noteDiv.innerHTML = `
+              <p>${noteText}</p>
+              <button class="btn btn-danger delete-note" data-note-id="${noteId}">Delete</button>
+            `;
+            noteListDiv.appendChild(noteDiv);
+          });
+        } else {
+          noteListDiv.innerHTML = '';
+        }
+      });
     } else {
-      userCredentialsDiv.innerHTML = '';
+      noteListDiv.innerHTML = '';
     }
   }
 
-  // Display user's saved notes
-function displayNotes(user) {
+   // Display user's posted causes
+  function displayCauses(user) {
+    if (user) {
+      const userId = user.uid;
+      const causesRef = ref(database, 'causes/' + userId);
+      onValue(causesRef, (snapshot) => {
+        const causesData = snapshot.val();
+        if (causesData) {
+          causeListDiv.innerHTML = '';
+          Object.entries(causesData).forEach(([causeId, cause]) => {
+            const causeTitle = cause.title;
+            const targetAmount = cause.targetAmount;
+            const currentAmount = cause.currentAmount;
+            const isFulfilled = cause.isFulfilled;
+            const causeDiv = document.createElement('div');
+            causeDiv.className = 'note';
+            causeDiv.innerHTML = `
+              <p>Cause Title: ${causeTitle}</p>
+              <p>Target Amount: $${targetAmount}</p>
+              <p>Current Amount: $${currentAmount}</p>
+              <p>Status: ${isFulfilled ? 'Fulfilled' : 'Not Fulfilled'}</p>
+              <button class="btn btn-danger delete-cause" data-cause-id="${causeId}">Delete</button>
+            `;
+            causeListDiv.appendChild(causeDiv);
+          });
+        } else {
+          causeListDiv.innerHTML = '';
+        }
+      });
+    } else {
+      causeListDiv.innerHTML = '';
+    }
+  }
+
+// Post a new cause
+postCauseButton.addEventListener("click", function() {
+  const user = auth.currentUser;
   if (user) {
     const userId = user.uid;
-    const notesRef = ref(database, 'notes/' + userId);
-    onValue(notesRef, (snapshot) => {
-      const notesData = snapshot.val();
-      if (notesData) {
-        // Clear the existing notes list
-        noteListDiv.innerHTML = '';
-        // Loop through each note and display them
-        Object.values(notesData).forEach((note) => {
-          const noteText = note.note;
-          const noteDiv = document.createElement('div');
-          noteDiv.className = 'note';
-          noteDiv.textContent = noteText;
-          noteListDiv.appendChild(noteDiv);
-        });
-      } else {
-        noteListDiv.innerHTML = '';
-      }
-    });
+    const causeTitle = causeTitleInput.value.trim();
+    const targetAmount = parseInt(targetAmountInput.value);
+    if (causeTitle !== '' && !isNaN(targetAmount) && targetAmount > 0) {
+      const causesRef = ref(database, 'causes/' + userId);
+      const newCauseRef = push(causesRef); // Generate a unique key for the new cause
+      set(newCauseRef, {
+        title: causeTitle,
+        targetAmount: targetAmount,
+        currentAmount: 0,
+        isFulfilled: false
+      })
+      .then(() => {
+        alert("Cause posted successfully!");
+        causeTitleInput.value = '';
+        targetAmountInput.value = '';
+        displayCauses(user); // Update causes list after posting
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Failed to post cause!");
+      });
+    }
   } else {
-    noteListDiv.innerHTML = '';
+    alert("Please login to post a cause.");
   }
+});
+
+// Delete a note
+function deleteNote(user, noteId) {
+  const userId = user.uid;
+  const noteRef = ref(database, `notes/${userId}/${noteId}`);
+  set(noteRef, null)
+    .then(() => {
+      alert('Note deleted successfully');
+      displayNotes(user);
+    })
+    .catch((error) => {
+      console.error('Error deleting note:', error);
+      alert('Failed to delete note');
+    });
+}
+
+// Delete a cause
+function deleteCause(user, causeId) {
+  const userId = user.uid;
+  const causeRef = ref(database, `causes/${userId}/${causeId}`);
+  set(causeRef, null)
+    .then(() => {
+      alert('Cause deleted successfully');
+      displayCauses(user);
+    })
+    .catch((error) => {
+      console.error('Error deleting cause:', error);
+      alert('Failed to delete cause');
+    });
+}
+
+
+// Function to attach event listeners for delete buttons
+function attachDeleteEventListeners(user) {
+  // Delete note event listener
+  noteListDiv.addEventListener('click', function(event) {
+    if (event.target.classList.contains('delete-note')) {
+      const noteId = event.target.getAttribute('data-note-id');
+      deleteNote(user, noteId);
+    }
+  });
+
+  // Delete cause event listener
+  causeListDiv.addEventListener('click', function(event) {
+    if (event.target.classList.contains('delete-cause')) {
+      const causeId = event.target.getAttribute('data-cause-id');
+      deleteCause(user, causeId);
+    }
+  });
 }
 
 </script>
